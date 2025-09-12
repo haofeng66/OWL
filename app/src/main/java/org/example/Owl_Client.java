@@ -53,12 +53,12 @@ import org.bouncycastle.util.Exceptions;
  * Each side should derive a session key from the keying material returned by {@link #calculateKeyingMaterial()}.
  * The caller is responsible for deriving the session key using a secure key derivation function (KDF).
  * <p>
- * Round 3 is an optional key confirmation process.
- * If you do not execute round 3, then there is no assurance that both client and server are using the same key.
+ * The explicit key confirmation process is optional, but recommended. 
+ * If you do not do explicit key confirmation, then there is no assurance that both client and server are using the same key.
  * (i.e. if the client and server used different passwords (remember the server does not have access to the password, only the secret from which it was derived), then their session keys will differ.)
  * If the passwords used for registration were not the same as the password used to log in, then validating the value r fails in, {@link Owl_Server#authenticationServerEnd(Owl_AuthenticationFinish)}.
  * <p>
- * If the round 3 validation succeeds, then the keys are guaranteed to be the same on both sides.
+ * If the key confirmation succeeds, then the keys are guaranteed to be the same on both sides.
  * <p>
  * The key confirmation process is implemented as specified in
  * <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf">NIST SP 800-56A Revision 3</a>,
@@ -403,9 +403,8 @@ public class Owl_Client
      * server do not share the same password, then each  will derive a different key.
      * Therefore, if you immediately start using a key derived from
      * the keying material, then you must handle detection of incorrect keys.
-     * If you want to handle this detection explicitly, you can optionally perform
-     * rounds 3 and 4.  See {@link Owl_Client} for details on how to execute
-     * rounds 3 and 4.
+     * If you want to handle this detection explicitly, you can perform
+     * explicit key confirmation.  See {@link Owl_Client} for details.
      * <p>
      * If the passwords used for registration and login are different then this will be caught
      * when validating r during {@link Owl_Server#authenticationServerEnd(Owl_AuthenticationFinish)}.
@@ -455,7 +454,7 @@ public class Owl_Client
         this.rawKey = null;
 
         /*
-         * Do not clear gx* yet, since those are needed by round 3.
+         * Do not clear gx* yet, since those are needed by key confirmation.
          */
         this.state = STATE_KEY_CALCULATED;
 
